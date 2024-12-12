@@ -40,8 +40,8 @@ Ensure you have the following installed:
 1. Clone this repository:
 
    ```bash
-   git clone <repository_url>
-   cd <project_directory>
+   git clone https://github.com/guillaumebeysson/chat-poc.git
+   cd chat-poc
 
 2. Install the necessary dependencies:
 `nmp install`
@@ -51,20 +51,6 @@ Ensure you have the following installed:
 
 4. Open your browser and access:
 `http://localhost:3000`
-
----
-
-## Project Structure
-
-.
-├── server.js         # Backend code with Socket.IO and message storage
-├── public/           # Contains frontend files
-│   ├── index.html    # User interface
-│   ├── style.css     # Chat styles
-│   └── script.js     # Frontend logic for handling messages
-├── messages.json     # File for storing chat messages
-├── package.json      # List of dependencies and scripts
-└── README.md         # Project documentation
 
 ---
 
