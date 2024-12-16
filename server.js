@@ -1,52 +1,57 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const fs = require('fs'); // Importer le module fs
+const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
+const Message = require('./models/messages.js');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, { cors: { origin: '*' } });
+const uri = process.env.MONGODB_URI;
 
-// Charger les messages depuis le fichier JSON au démarrage
-const loadMessages = () => {
-    try {
-        const data = fs.readFileSync('messages.json', 'utf8');
-        return JSON.parse(data); // Charger et parser le JSON
-    } catch (err) {
-        console.log('No previous messages found or failed to load:', err.message);
-        return []; // Retourne un tableau vide si le fichier n'existe pas ou est illisible
-    }
-};
+// Connexion à MongoDB Atlas
+mongoose.connect(uri)
+    .then(() => console.log('MongoDB Atlas connected'))
+    .catch(err => console.error('MongoDB connection error:', err));
 
-let messages = loadMessages(); // Charger les anciens messages
+// Configurer le dossier pour le frontend Angular
+app.use(express.static('frontend/dist/frontend/browser'));
 
-// Sauvegarder les messages dans un fichier JSON
-const saveMessages = () => {
-    fs.writeFileSync('messages.json', JSON.stringify(messages, null, 2), 'utf8');
-};
-
-app.use(express.static('public'));
-
+// Gestion des connexions Socket.IO
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
-    // Ne pas envoyer l'historique des messages aux nouveaux utilisateurs
-    socket.emit('chat history', []);
+    // Recevoir un message et l'enregistrer dans MongoDB
+    socket.on('chat message', async (msg) => {
+        try {
+            const message = new Message({
+                id: uuidv4(),
+                text: msg.text,
+                sender: msg.sender,
+                timestamp: msg.timestamp
+            });
 
-    // Recevoir un message et le transmettre
-    socket.on('chat message', (msg) => {
-        const message = { id: Date.now(), text: msg, sender: socket.id, timestamp: new Date().toISOString() };
-        messages.push(message); // Ajouter le nouveau message à la mémoire
-        saveMessages(); // Sauvegarder les messages dans le fichier
-        io.emit('chat message', message); // Diffuser aux utilisateurs connectés
+            await message.save(); // Enregistrer dans MongoDB
+            io.emit('chat message', {
+                id: message.id,
+                text: message.text,
+                sender: message.sender,
+                timestamp: message.timestamp.toISOString()
+            });
+        } catch (err) {
+            console.error('Error saving message:', err);
+        }
     });
 
-    // Déconnexion
+    // Gérer la déconnexion d'un utilisateur
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
     });
 });
 
+// Lancer le serveur
 server.listen(3000, () => {
     console.log('Server running on http://localhost:3000');
 });

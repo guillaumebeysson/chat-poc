@@ -1,0 +1,16 @@
+<div id="container">
+    <h1>Service Client Chat</h1>
+
+    <div id="chat">
+        @for (msg of messages; track msg.id) {
+        <div [ngClass]="{'my-message': msg.sender === myId, 'other-message': msg.sender !== myId}">
+            {{msg.text}}
+        </div>
+        }
+    </div>
+    <div id="input">
+        <input id="message" [(ngModel)]="message" placeholder="Écrivez votre message..."
+            (keydown.enter)="sendMessage()">
+        <button id="send" (click)="sendMessage()">Envoyer</button>
+    </div>
+</div>

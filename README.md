@@ -1,28 +1,25 @@
 # Chat PoC
 
-This project is a Proof of Concept (PoC) for a real-time chat system. It uses `Node.js` and `Socket.IO` for real-time communication between users. Messages are stored in a JSON file (`messages.json`) for data persistence.
+This project is a Proof of Concept (PoC) for a real-time chat system using Node.js, Socket.IO, and MongoDB. It provides a simple chat interface for multiple users with message persistence.
 
 ---
 
 ## Features
 
 - Real-time chat between multiple users.
-- Message persistence by saving to a JSON file.
-- Chat without history: each user starts a session without seeing previous messages.
-- Timestamp added to messages (complete date and time).
+- Messages stored in MongoDB for persistence.
+- Simple chat interface built with Angular.
 
 ---
 
 ## Technologies Used
 
 - **Frontend:**
-  - HTML, CSS, JavaScript
+  - Angular
 - **Backend:**
   - Node.js
+  - Express
   - Socket.IO
-  - File system (`fs`) for managing the JSON file
-- **Message storage file:**
-  - `messages.json`
 
 ---
 
@@ -32,60 +29,63 @@ Ensure you have the following installed:
 
 1. [Node.js](https://nodejs.org) (version 14+ recommended)
 2. A modern web browser (Chrome, Firefox, etc...)
+3. MongoDB Atlas (cloud database)
 
 ---
 
 ## Installation
 
 1. Clone this repository:
+`git clone https://github.com/guillaumebeysson/chat-poc.git`
+`cd chat-poc`
 
-   ```bash
-   git clone https://github.com/guillaumebeysson/chat-poc.git
-   cd chat-poc
+2. Install backend dependencies:
+`npm install`
 
-2. Install the necessary dependencies:
-`nmp install`
+3. Install Angular frontend dependencies:
+`cd frontend`
+`npm install`
 
-3. Start the server:
+4. Configure MongoDB:
+- Create a `.env` file at the root of the project.
+- Add this MongoDB connection string:
+`MONGODB_URI=mongodb+srv://guillaumebeysson:3M1ip7Q05FUwcMPy@cluster0.xaipw.mongodb.net/chat?retryWrites=true&w=majority&appName=Cluster0`
+
+5. Build the Angular project:
+`ng build`
+
+6. Start the server:
+go back to chat-poc directory and use:
 `node server.js`
 
-4. Open your browser and access:
+7. Open your browser and access:
 `http://localhost:3000`
 
 ---
 
 ## Usage
 
-1. Start the server with:
+1. Open multiple browser tabs to simulate multiple users.
 
-   ```bash
-   node server.js
+2. Send messages in real-time and observe synchronization.
 
-2. Open http://localhost:3000 in your browser.
+3. Messages are persisted in the MongoDB Atlas database.
 
-3. Open multiple tabs or browsers to test the real-time chat functionality.
-
-4. Send messages and observe their synchronization across clients.
 
 ---
 
 ## Technical Details
 
 ### Backend:
-- **Socket.IO** manages WebSocket connections between clients.
-- Messages are stored in `messages.json` with:
-  - A unique ID.
-  - The message text.
-  - The user ID (`socket.id`).
-  - A full timestamp.
+Manages WebSocket connections and stores messages in MongoDB using Mongoose.
 
 ### Frontend:
-- Messages are dynamically displayed in the chat window without reloading the page.
-- Each message is identified as:
-  - **"Sent"** if sent by the user.
-  - **"Received"** if sent by another user.
+Built with Angular to dynamically display chat messages.
 
 ### Data Persistence:
-- Messages are saved to `messages.json` on the server.
-- Messages are **not displayed** to users when a new session starts.
+Messages include:
+- Unique ID (UUID)
+- Text content
+- Sender ID
+- Timestamp
 
